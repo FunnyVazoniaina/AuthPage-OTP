@@ -4,9 +4,12 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT ;
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 
 // Import controllers directly
