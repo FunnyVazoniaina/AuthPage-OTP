@@ -16,7 +16,11 @@ module.exports = async (phone, otp) => {
     console.log('OTP:', otp);
     console.log('Twilio SID:', process.env.TWILIO_SID);
     console.log('Twilio Auth Token (first 10 chars):', process.env.TWILIO_AUTH_TOKEN?.substring(0, 10) + '...');
-    console.log('Twilio Phone:', process.env.TWILIO_PHONE);
+    
+    // Configuration de l'expéditeur alphanumérique personnalisé
+    // Au lieu d'utiliser un numéro de téléphone international, on utilise un nom d'expéditeur
+    const senderName = process.env.TWILIO_SENDER_NAME || 'AuthPageOTP';
+    console.log('Sender Name:', senderName);
 
     // Validation des paramètres
     if (!phone || !otp) {
@@ -50,10 +54,13 @@ module.exports = async (phone, otp) => {
 
     const messageBody = `Votre code de vérification est: ${otp}. Ce code expire dans 5 minutes.`;
     
+    // Envoi du SMS avec expéditeur alphanumérique personnalisé
+    // Le paramètre 'from' utilise maintenant un nom au lieu d'un numéro de téléphone
+    // Cela permet d'afficher un nom personnalisé comme expéditeur sur le téléphone du destinataire
     const message = await client.messages.create({
       body: messageBody,
       to: formattedPhone,
-      from: process.env.TWILIO_PHONE
+      from: senderName // Utilisation du nom d'expéditeur alphanumérique au lieu de TWILIO_PHONE
     });
 
     console.log('SMS sent successfully!');
