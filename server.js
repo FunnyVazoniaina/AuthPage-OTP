@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const connectDB = require('./config/db'); 
 const cors = require('cors');
 
 const app = express();
@@ -11,6 +11,10 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Connect to MongoDB 
+connectDB();
 
 // Import controllers directly
 const { register, login, sendOtp, verifyOtp } = require('./controllers/authController');
@@ -21,14 +25,6 @@ app.post('/api/auth/login', login);
 app.post('/api/auth/send-otp', sendOtp);
 app.post('/api/auth/verify-otp', verifyOtp);
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('✅ MongoDB connected');
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
-}).catch(err => {
-  console.error('❌ MongoDB connection error:', err);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
