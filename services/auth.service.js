@@ -1,10 +1,5 @@
 const User = require('../models/User');
-const generateOtp = require('../utils/generateOtp');
-// const sendSms = require('../utils/sendSms');
-const sendEmail = require('../utils/sendEmail');
-// const sendVoiceCall = require('../utils/sendVoiceCall');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const { generateOtp, sendEmail } = require('../utils'); 
 
 class AuthService {
   // Register a new user
