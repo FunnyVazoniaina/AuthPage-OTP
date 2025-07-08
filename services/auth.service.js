@@ -1,44 +1,44 @@
 const User = require('../models/User');
-const { generateOtp, sendEmail } = require('../utils'); 
+const { generateOtp, sendEmail, generateToken, passwordUtils  } = require('../utils'); 
 
 class AuthService {
-  // Register a new user
-  async register(username, password, email) {   
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({
-      username,
-      password: hashedPassword,
-      email,
-      isVerified: false,
-      mfaEnabled: false
-    });
-    //password validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      throw new Error('Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number.');
+  
+    async register(username, password, email) {   
+        const hashedPassword = await passwordUtils.hashPassword(password);
+        const user = new User({
+        username,
+        password: hashedPassword,
+        email,
+        isVerified: false,
+        mfaEnabled: false
+        });
+    
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        if (!passwordRegex.test(password)) {
+        throw new Error('Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number.');
+        }
+        try {
+        await user.save();
+        return { message: 'User registered successfully' };
+        } catch (error) {
+        console.error('Registration error:', error);
+        throw new Error('Registration failed');
+        }
     }
-    try {
-      await user.save();
-      return { message: 'User registered successfully' };
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw new Error('Registration failed');
-    }
-    }
-    // Login user with username and password
+
     async login(username, password) {
-        const user = await User.find
-        One({ username });
+        const user = await User.findOne({ username });
         if (!user) {
-            throw new Error('Invalid credentials');
+            throw new Error('user not found');
         }   
-        const isMatch = await bcrypt.compare(password, user.password);
+    
+        const isMatch = await passwordUtils.comparePassword(password, user.password);
         if (!isMatch) {
             throw new Error('Invalid credentials');
         }
-        const token = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
         return {
-            token,
+            token : generateToken({ id: user._id, username: user.username }),
             user: {
                 id: user._id,
                 username: user.username,
@@ -48,7 +48,7 @@ class AuthService {
             }
         };
     }
-    // Send OTP to user
+    
     async sendOtp(userId, method) {
         const user = await User.findById(userId);
         if (!user) {
@@ -80,7 +80,7 @@ class AuthService {
         }
         return { message: 'OTP sent successfully' };
     }
-    // Verify OTP
+   
     async verifyOtp(userId, otp) {
         const user = await User.findById(userId);
         if (!user) {
