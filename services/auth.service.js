@@ -12,6 +12,11 @@ class AuthService {
       isVerified: false,
       mfaEnabled: false
     });
+    //password validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      throw new Error('Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number.');
+    }
     try {
       await user.save();
       return { message: 'User registered successfully' };
