@@ -3,28 +3,42 @@ const { generateOtp, sendEmail, generateToken, passwordUtils  } = require('../ut
 
 class AuthService {
   
-    static async register(username, password, email) {   
-        const hashedPassword = await passwordUtils.hashPassword(password);
-        const user = new User({
-        username,
-        password: hashedPassword,
-        email,
-        isVerified: false,
-        mfaEnabled: false
-        });
+     static async register(username, password, email) {
+        if (!username || !password || !email) {
+            throw new Error('All fields are required');
+        }
     
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            throw new Error('Username already exists');
+        }
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
         if (!passwordRegex.test(password)) {
         throw new Error('Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number.');
         }
-        try {
+        const hashedPassword = await passwordUtils.hashPassword(password);
+        const user = new User({
+            username,
+            password: hashedPassword,
+            email,
+            isVerified: false,
+            mfaEnabled: false,
+            otp: '',
+            otpExpiresAt: null
+        });
         await user.save();
-        return { message: 'User registered successfully' };
-        } catch (error) {
-        console.error('Registration error:', error);
-        throw new Error('Registration failed');
-        }
+        return {
+            token: generateToken({ id: user._id, username: user.username }),
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                isVerified: user.isVerified,
+                mfaEnabled: user.mfaEnabled
+            }
+        };
     }
+
 
     static async login(username, password) {
         const user = await User.findOne({ username });
