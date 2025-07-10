@@ -3,7 +3,7 @@ const { generateOtp, sendEmail, generateToken, passwordUtils  } = require('../ut
 
 class AuthService {
   
-    async register(username, password, email) {   
+    static async register(username, password, email) {   
         const hashedPassword = await passwordUtils.hashPassword(password);
         const user = new User({
         username,
@@ -26,7 +26,7 @@ class AuthService {
         }
     }
 
-    async login(username, password) {
+    static async login(username, password) {
         const user = await User.findOne({ username });
         if (!user) {
             throw new Error('user not found');
@@ -49,7 +49,7 @@ class AuthService {
         };
     }
     
-    async sendOtp(userId, method) {
+    static async sendOtp(userId, method) {
         const user = await User.findById(userId);
         if (!user) {
             throw new Error('User not found');
@@ -81,7 +81,7 @@ class AuthService {
         return { message: 'OTP sent successfully' };
     }
    
-    async verifyOtp(userId, otp) {
+    static async verifyOtp(userId, otp) {
         const user = await User.findById(userId);
         if (!user) {
             throw new Error('User not found');
