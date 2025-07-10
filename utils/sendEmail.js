@@ -10,8 +10,7 @@ module.exports = async (email, otp) => {
         pass: process.env.EMAIL_PASS,
       },
     });
-
-    // Template d'email amélioré
+    //Email template
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to: email,
@@ -47,11 +46,11 @@ module.exports = async (email, otp) => {
     };
 
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', result.messageId);
+    console.log('Email sent successfully:', result.messageId);
     return result;
     
   } catch (error) {
-    console.error('❌ Email sending error:', error);
+    console.error('Email sending error:', error);
     throw new Error('Failed to send email: ' + error.message);
   }
 };
