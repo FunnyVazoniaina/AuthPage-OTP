@@ -70,14 +70,14 @@ class AuthService {
         }
         const otp = generateOtp();
         user.otp = otp;
-        user.otpExpiresAt = Date.now() + 10 * 60 * 1000;
+        user.otpExpiresAt = Date.now() + 5 * 60 * 1000;
         await user.save();
 
         if (method === 'email') {   
             if (!user.email) {
                 throw new Error('Email is required for email OTP');
             }
-            await sendEmail(user.email, 'Your OTP Code', `Your OTP code is: ${otp}`);
+            await sendEmail(user.email, otp);
         } else if (method === 'sms') {
             if (!user.phone) {
                 throw new Error('Phone number is required for SMS OTP');
