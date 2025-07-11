@@ -22,7 +22,7 @@ exports.login = async (req, res) => {
 };
 
 exports.sendOtp = async (req, res) => {
-    const userId = req.user.id; // Get user ID from authenticated request
+    const userId = req.user.id; 
     const { method } = req.body;
     try {
         const result = await AuthService.sendOtp(userId, method);
