@@ -34,7 +34,7 @@ exports.sendOtp = async (req, res) => {
 };
 
 exports.verifyOtp = async (req, res) => {
-    const userId = req.user.id; // Get user ID from authenticated request
+    const userId = req.user.id; 
     const { otp } = req.body;   
     try {
         const result = await AuthService.verifyOtp(userId, otp);
