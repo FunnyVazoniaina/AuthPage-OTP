@@ -47,11 +47,15 @@ class AuthService {
   }
 
   static async login(username, password, recaptchaToken) {
-    
+
     const isHuman = await verifyRecaptcha(recaptchaToken);
     if (!isHuman) {
-      throw new Error("Échec de vérification reCAPTCHA");
+      throw new Error("Failed to verify your humanity via reCAPTCHA");
     }
+    if (!recaptchaToken) {
+      throw new Error("reCAPTCHA token is required");
+    }
+    
     const user = await User.findOne({ username });
     if (!user) {
       throw new Error("user not found");
