@@ -11,9 +11,9 @@ exports.register = async (req, res) => {
     }
 };
 exports.login = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, recaptchaToken } = req.body;
     try {
-        const result = await AuthService.login(username, password);
+        const result = await AuthService.login(username, password, recaptchaToken);
         res.status(200).json(result);
     } catch (error) {
         console.error('Login error:', error);
