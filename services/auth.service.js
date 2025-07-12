@@ -5,7 +5,7 @@ const {
   generateToken,
   passwordUtils,
 } = require("../utils");
-const { verifyRecaptcha } = require("./captcha.service");
+const verifyRecaptcha = require("./captcha.service");
 
 class AuthService {
   static async register(username, password, email) {
@@ -47,23 +47,21 @@ class AuthService {
   }
 
   static async login(username, password, recaptchaToken) {
+    
+    const isHuman = await verifyRecaptcha(recaptchaToken);
+    if (!isHuman) {
+      throw new Error("Échec de vérification reCAPTCHA");
+    }
     const user = await User.findOne({ username });
     if (!user) {
       throw new Error("user not found");
     }
-
     const isMatch = await passwordUtils.comparePassword(
       password,
       user.password,
     );
     if (!isMatch) {
       throw new Error("Invalid credentials");
-    }
-    const isHuman = await verifyRecaptcha(recaptchaToken);
-    if (!isHuman) {
-      return res
-        .status(403)
-        .json({ message: "Échec de vérification reCAPTCHA" });
     }
 
     return {
